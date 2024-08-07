@@ -15,6 +15,7 @@ public class Board {
 	private short shot;
 	private short openCells;
 	private short totalCells;
+	private final int[][] var = { { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
 
 	public Board(short width, short height, short mines) {
 		this.width = width;
@@ -71,7 +72,6 @@ public class Board {
 
 	// find how many mines are near a cell
 	private short findmines(int x, int y) {
-		final int[][] var = { { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
 		short count = 0;
 
 		for (int[] i : var) {
@@ -117,7 +117,7 @@ public class Board {
 				else if (board[i][j] == 10)
 					bw.write("   ");
 				else if (board[i][j] >= 11 && board[i][j] <= 18)
-					bw.write(" " + board[i][j] + " ");
+					bw.write(" " + (board[i][j]-10) + " ");
 				else if (board[i][j] == -2)
 					bw.write(" F ");
 				else
@@ -145,10 +145,26 @@ public class Board {
 		return width;
 	}
 
+	public short getMines() {
+		return mines;
+	}
+	
 	public short getCell(int x, int y) {
 		return board[y][x];
 	}
+	
+	public short getTotalCells() {
+		return totalCells;
+	}
 
+	public short getOpenCells() {
+		return openCells;
+	}
+	
+	public short getShots() {
+		return shot;
+	}
+	
 	public void makeCellOpen(int x, int y) {
 		board[y][x] = (short) (board[y][x] + 10);
 		shot++;
@@ -163,6 +179,20 @@ public class Board {
 	public void unFlag(int x, int y) {
 		board[y][x] = findmines(x, y);
 		return;
+	}
+	
+	public void open0cells(int x, int y) {
+		board[y][x] = 10;
+		openCells++;
+		for(int[] i : var) {
+			int newx = x+i[0], newy = y+i[1];
+			try {
+				if(board[newy][newx] == 0)
+					open0cells(newx, newy);
+			}catch (ArrayIndexOutOfBoundsException e) {
+				continue;
+			}
+		}
 	}
 
 }

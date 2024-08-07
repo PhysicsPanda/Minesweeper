@@ -16,8 +16,12 @@ public class Minesweeper {
 		boolean validanswer = false;
 		short width = 1, height = 1, mines = 1;
 		short cell;
-
-//		Tutorial.tutorial();
+		
+		bw.write("Press <Enter> to start...");
+		bw.flush();
+		input = br.readLine();
+		if(!input.equals("skip"))
+			Tutorial.tutorial();
 
 		// difficulty setting
 		bw.write("There are three difficulties, [Biginner, Intermediate, Expert]\n" + "Choose your difficulty: ");
@@ -53,9 +57,9 @@ public class Minesweeper {
 		// set mines on board ■▢
 		board.setMines();
 		board.countMines();
-		
+
 		// game start
-		bw.write("Press <Enter> to start. \n\n");
+		bw.write("Press <Enter> to start...");
 		bw.flush();
 		br.readLine();
 		boolean gameEnd = false;
@@ -63,43 +67,74 @@ public class Minesweeper {
 		// {valid(0,1), x, y, flag(0,1)}
 		// if invalid input => {0, 0, 0, 0}
 		int[] inputArr = new int[] { 0, 0, 0, 0 };
+		int gameover = 0;
 
 		while (!gameEnd) {
 			bw.write("\n\n\n\n\n");
+			bw.flush();
 			board.printBoard();
 
-			while (inputArr[0] == 0) {
+			while (true) {
 				input = br.readLine().toUpperCase();
 				inputArr = isValid(board, input);
 				if (inputArr[0] == 0) {
-					bw.write("\n\nInvalid input! try again!\n");
+					bw.write("Invalid input! try again!\n");
 					bw.flush();
 					continue;
 				}
 
 				cell = board.getCell(inputArr[1], inputArr[2]);
-				
-				if (cell >= 0 && cell <= 8) // if chosen cell is not open
+
+				if (cell >= 1 && cell <= 8) { // if chosen cell is not open
 					board.makeCellOpen(inputArr[1], inputArr[2]);
-				
-				else if (cell == 0) {
-					// open 0cells nearby
-				} else if (cell == -1) { // if chosen cell is mine
-					gameEnd = true;
+					break;
+				}
+
+				else if (cell == 0) { // if chosen cell is 0
+					board.open0cells(inputArr[1], inputArr[2]);
 					break;
 				} else if (cell >= 10 && cell <= 18) { // if chosen cell is already opened
-					// choosen cell is already open
-				} else if (inputArr[3] == 1) {
-					if(cell != -2) {
+					char temporaryCharacter = (char) (65 + inputArr[2]);
+					String OpenCellError = "Your selected cell, " + temporaryCharacter + (inputArr[1] + 1)
+							+ " is already open.\n";
+					bw.write(OpenCellError);
+					bw.write("Try other cell : ");
+					bw.flush();
+					continue;
+				} else if (inputArr[3] == 1) { // if input was flag
+					if (cell != -2) {
 						board.setFlag(inputArr[1], inputArr[2]);
 						break;
 					}
 					board.unFlag(inputArr[1], inputArr[2]);
+				} else if (cell == -1) { // if chosen cell is mine
+					gameEnd = true;
+					break;
+				} else if(cell == -2) {
+					char temporaryCharacter = (char) (65 + inputArr[2]);
+					String OpenCellError = "Your selected cell, " + temporaryCharacter + (inputArr[1] + 1)
+							+ " is flagged.\n";
+					bw.write(OpenCellError);
+					bw.write("Try other cell : ");
+					bw.flush();
+					continue;
 				}
 			}
+			
+			gameover = board.getTotalCells() - board.getOpenCells() - board.getMines();
+			if(gameover == 0)
+				gameEnd = true;
+			
 
 		}
-
+		
+		if(gameover == 0) {
+			bw.write("You win!");
+		}else {
+			bw.write("You lose!");
+		}
+		
+		bw.flush();
 		bw.close();
 	}
 
@@ -107,6 +142,8 @@ public class Minesweeper {
 		int[] ans = new int[] { 0, 0, 0, 0 };
 
 		StringTokenizer st = new StringTokenizer(str);
+		if(!st.hasMoreTokens())
+			return ans;
 		String str1 = st.nextToken();
 
 		// is input length valid
@@ -116,14 +153,14 @@ public class Minesweeper {
 
 		// is alphabet(y value) valid
 		char C = str1.charAt(0);
-		if (C < 'A' && C > 'A' + board.getHeight() - 1)
+		if (C < 'A' && C > 'A' + board.getHeight())
 			return ans;
 
 		// is number(x value) valid
 		int N;
 		try {
 			N = Integer.parseInt(str1.substring(1));
-			if (N < 1 || N > board.getWidth() - 1)
+			if (N < 1 || N > board.getWidth())
 				return ans;
 		} catch (NumberFormatException e) {
 			return ans;
@@ -137,8 +174,6 @@ public class Minesweeper {
 
 		if (st.nextToken().charAt(0) == 'F')
 			ans[3] = 1;
-		else
-			ans[3] = 0;
 
 		return ans;
 	}

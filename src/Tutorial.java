@@ -26,6 +26,21 @@ public class Tutorial {
 		Tboard.setTutorial();
 		Tboard.printBoard();
 		
+		bw.write("Let's bigin with E5 cell.\n");
+		bw.write("Type \"E5\".\n");
+		bw.flush();
+		
+		String input;
+		boolean valid = false;
+		while(!valid) {
+			input = br.readLine().toUpperCase();
+			if(!input.equals("E5")) {
+				bw.write("Try again. Type in \"E5\".\n");
+				bw.flush();
+			}
+			valid = true;
+		}
+		
 		
 		bw.close();
 		return;
