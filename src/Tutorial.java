@@ -13,14 +13,17 @@ public class Tutorial {
 		bw.write("Input tutorial: \n");
 		bw.write("Lower case or upper case of your input does not matter.\n");
 		bw.write("You can use single character on any dicisions.\n");
-		bw.write("ex) \'B\', \'b\', \"BiGinNeR\" => Biginner\n");
+		bw.write("ex) \'B\', \'b\', \"BiGinNeR\" => Biginner\n\n");
 		bw.write("Press <Enter> to continue...");
 		bw.flush();
 		br.readLine();
 		
-		Board Tboard = new Board(9, 9, 10);
-		Tboard.setMines();
-		Tboard.countMines();
+		final short width = 9;
+		final short height = 9;
+		final short mineN = 10;
+		
+		Board Tboard = new Board(width, height, mineN);
+		Tboard.setTutorial();
 		Tboard.printBoard();
 		
 		

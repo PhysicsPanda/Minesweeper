@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
 
 public class Minesweeper {
 
@@ -13,8 +14,9 @@ public class Minesweeper {
 
 		String input;
 		boolean validanswer = false;
-		int width=1, height=1, mines=1;
-		
+		short width = 1, height = 1, mines = 1;
+		short cell;
+
 //		Tutorial.tutorial();
 
 		// difficulty setting
@@ -40,7 +42,7 @@ public class Minesweeper {
 				height = 16;
 				mines = 99;
 				validanswer = true;
-			}else{
+			} else {
 				bw.write("\nYou have put wrong input. Might have spelled wrong. \n" + "Try again : ");
 				bw.flush();
 			}
@@ -48,33 +50,97 @@ public class Minesweeper {
 		Board board = new Board(width, height, mines);
 		validanswer = false;
 
-		bw.write("Press <Enter> to start. \n\n");
-		bw.flush();
-		br.readLine();
-
-		// set board
-		// -1 : mine, 0 ~ 8 : mines nearby, 10 ~ 18 : open cell,
-		// -2 : not open, -3 : flag
-
 		// set mines on board ■▢
 		board.setMines();
 		board.countMines();
+		
+		// game start
+		bw.write("Press <Enter> to start. \n\n");
+		bw.flush();
+		br.readLine();
+		boolean gameEnd = false;
 
-		
-//		boolean gameEnd = false;
-//		while(!gameEnd) {
-//			
-//			
-//			
-//		}
-		
-		
-		// test view
-		board.printBoard();
-		
+		// {valid(0,1), x, y, flag(0,1)}
+		// if invalid input => {0, 0, 0, 0}
+		int[] inputArr = new int[] { 0, 0, 0, 0 };
+
+		while (!gameEnd) {
+			bw.write("\n\n\n\n\n");
+			board.printBoard();
+
+			while (inputArr[0] == 0) {
+				input = br.readLine().toUpperCase();
+				inputArr = isValid(board, input);
+				if (inputArr[0] == 0) {
+					bw.write("\n\nInvalid input! try again!\n");
+					bw.flush();
+					continue;
+				}
+
+				cell = board.getCell(inputArr[1], inputArr[2]);
+				
+				if (cell >= 0 && cell <= 8) // if chosen cell is not open
+					board.makeCellOpen(inputArr[1], inputArr[2]);
+				
+				else if (cell == 0) {
+					// open 0cells nearby
+				} else if (cell == -1) { // if chosen cell is mine
+					gameEnd = true;
+					break;
+				} else if (cell >= 10 && cell <= 18) { // if chosen cell is already opened
+					// choosen cell is already open
+				} else if (inputArr[3] == 1) {
+					if(cell != -2) {
+						board.setFlag(inputArr[1], inputArr[2]);
+						break;
+					}
+					board.unFlag(inputArr[1], inputArr[2]);
+				}
+			}
+
+		}
 
 		bw.close();
 	}
 
-	
+	public static int[] isValid(Board board, String str) {
+		int[] ans = new int[] { 0, 0, 0, 0 };
+
+		StringTokenizer st = new StringTokenizer(str);
+		String str1 = st.nextToken();
+
+		// is input length valid
+		int len = str1.length();
+		if (len < 2 || len > 3)
+			return ans;
+
+		// is alphabet(y value) valid
+		char C = str1.charAt(0);
+		if (C < 'A' && C > 'A' + board.getHeight() - 1)
+			return ans;
+
+		// is number(x value) valid
+		int N;
+		try {
+			N = Integer.parseInt(str1.substring(1));
+			if (N < 1 || N > board.getWidth() - 1)
+				return ans;
+		} catch (NumberFormatException e) {
+			return ans;
+		}
+
+		ans[0] = 1;
+		ans[1] = N - 1;
+		ans[2] = C - 65;
+		if (!st.hasMoreTokens())
+			return ans;
+
+		if (st.nextToken().charAt(0) == 'F')
+			ans[3] = 1;
+		else
+			ans[3] = 0;
+
+		return ans;
+	}
+
 }
