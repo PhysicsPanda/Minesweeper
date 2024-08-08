@@ -20,8 +20,11 @@ public class Minesweeper {
 		bw.write("Press <Enter> to start...");
 		bw.flush();
 		input = br.readLine();
-		if(!input.equals("skip"))
-			Tutorial.tutorial();
+		fiveLines();
+		if(!input.equals("skip")) {
+			Tutorial tuto = new Tutorial();
+			tuto.tutorial();
+		}
 
 		// difficulty setting
 		bw.write("There are three difficulties, [Biginner, Intermediate, Expert]\n" + "Choose your difficulty: ");
@@ -29,18 +32,21 @@ public class Minesweeper {
 		while (!validanswer) {
 			input = br.readLine().toUpperCase();
 			if (input.equals("BIGINNER") || input.equals("B")) {
+				fiveLines();
 				bw.write("\nChoosen difficulty is Biginner.\n" + "the board set to 9x9, 10mines.(12% mines)\n\n");
 				width = 9;
 				height = 9;
 				mines = 10;
 				validanswer = true;
 			} else if (input.equals("INTERMEDIATE") || input.equals("I")) {
+				fiveLines();
 				bw.write("\nChoosen difficulty is Intermediate.\n" + "the board set to 16x16, 40mines.(16% mines)\n\n");
 				width = 16;
 				height = 16;
 				mines = 40;
 				validanswer = true;
 			} else if (input.equals("EXPERT") || input.equals("E")) {
+				fiveLines();
 				bw.write("\nChoosen difficulty is Experts.\n" + "the board set to 30x16, 99mines.(21% mines)\n\n");
 				width = 30;
 				height = 16;
@@ -70,8 +76,7 @@ public class Minesweeper {
 		int gameover = 0;
 
 		while (!gameEnd) {
-			bw.write("\n\n\n\n\n");
-			bw.flush();
+			fiveLines();
 			board.printBoard();
 
 			while (true) {
@@ -86,6 +91,7 @@ public class Minesweeper {
 				cell = board.getCell(inputArr[1], inputArr[2]);
 
 				if (cell >= 1 && cell <= 8) { // if chosen cell is not open
+					board.addShot();
 					board.makeCellOpen(inputArr[1], inputArr[2]);
 					break;
 				}
@@ -108,6 +114,7 @@ public class Minesweeper {
 					}
 					board.unFlag(inputArr[1], inputArr[2]);
 				} else if (cell == -1) { // if chosen cell is mine
+					board.mindFound(inputArr[1], inputArr[2]);
 					gameEnd = true;
 					break;
 				} else if(cell == -2) {
@@ -131,6 +138,7 @@ public class Minesweeper {
 		if(gameover == 0) {
 			bw.write("You win!");
 		}else {
+			board.showMines();
 			bw.write("You lose!");
 		}
 		
@@ -178,4 +186,9 @@ public class Minesweeper {
 		return ans;
 	}
 
+	public void fiveLines() throws IOException{
+		bw.write("\n\n\n\n\n");
+		bw.flush();
+		return;
+	}
 }

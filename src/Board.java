@@ -112,7 +112,7 @@ public class Board {
 			// -1 : mine, 0 ~ 8 : mines nearby, 10 ~ 18 : open cell,
 			// -2 : flag
 			for (short j = 0; j < width; j++) {
-				if ((board[i][j] >= 0 && board[i][j] <= 8))// || board[i][j] == -1)
+				if ((board[i][j] >= 0 && board[i][j] <= 8) || board[i][j] == -1)
 					bw.write("[] ");
 				else if (board[i][j] == 10)
 					bw.write("   ");
@@ -120,8 +120,8 @@ public class Board {
 					bw.write(" " + (board[i][j]-10) + " ");
 				else if (board[i][j] == -2)
 					bw.write(" F ");
-				else
-					bw.write(" M ");
+//				else
+//					bw.write(" M ");
 			}
 
 			// right vertical line
@@ -137,6 +137,55 @@ public class Board {
 		return;
 	}
 
+	public void showMines() throws IOException{
+		bw.write("    ");
+		for (int i = 1; i <= 9; i++)
+			bw.write(" " + i + " ");
+		for (int i = 10; i <= width; i++)
+			bw.write(i + " ");
+
+		// upper horizontal line
+		bw.newLine();
+		bw.write("    ");
+		for (int i = 0; i < width * 3; i++)
+			bw.write("─"); // _ ─ -
+		bw.newLine();
+
+		// board display
+		for (short i = 0; i < height; i++) {
+
+			// alphabet, left vertical line
+			bw.write(65 + i);
+			bw.write("  |");
+			
+			for (short j = 0; j < width; j++) {
+				if (board[i][j] >= 0 && board[i][j] <= 8)
+					bw.write("[] ");
+				else if (board[i][j] == 10)
+					bw.write("   ");
+				else if (board[i][j] >= 11 && board[i][j] <= 18)
+					bw.write(" " + (board[i][j]-10) + " ");
+				else if (board[i][j] == -2)
+					bw.write(" F ");
+				else if (board[i][j] == -1)
+					bw.write(" M ");
+				else if (board[i][j] == -3)
+					bw.write(" X ");
+			}
+
+			// right vertical line
+			bw.write("|\n");
+		}
+
+		// lower horizontal line
+		bw.write("    ");
+		for (int i = 0; i < width * 3; i++)
+			bw.write("─");
+		bw.write("\n\n");
+		bw.flush();
+		return;
+	}
+	
 	public short getHeight() {
 		return height;
 	}
@@ -165,9 +214,13 @@ public class Board {
 		return shot;
 	}
 	
+	public void addShot() {
+		shot++;
+		return;
+	}
+	
 	public void makeCellOpen(int x, int y) {
 		board[y][x] = (short) (board[y][x] + 10);
-		shot++;
 		return;
 	}
 	
@@ -187,12 +240,20 @@ public class Board {
 		for(int[] i : var) {
 			int newx = x+i[0], newy = y+i[1];
 			try {
-				if(board[newy][newx] == 0)
+				short currentCell = board[newy][newx];
+				if(currentCell == 0)
 					open0cells(newx, newy);
+				else if(currentCell>=0 && currentCell<=8) {
+					board[newy][newx] += 10;
+				}
 			}catch (ArrayIndexOutOfBoundsException e) {
 				continue;
 			}
 		}
 	}
 
+	public void mindFound(int x, int y) {
+		board[y][x] = -3;
+		return;
+	}
 }
