@@ -113,6 +113,7 @@ public class Minesweeper {
 						break;
 					}
 					board.unFlag(inputArr[1], inputArr[2]);
+					break;
 				} else if (cell == -1) { // if chosen cell is mine
 					board.mindFound(inputArr[1], inputArr[2]);
 					gameEnd = true;
